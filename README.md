@@ -8,7 +8,7 @@ pip install huggingface_hub
 pip install transformers
 ```
 
-### to delete model from computer:
+### Delete model from computer:
 
 ```bash
 huggingface-cli scan-cache

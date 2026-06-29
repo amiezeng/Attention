@@ -30,22 +30,23 @@ for filename in required_files:
     print(f"File downloaded to: {download_location}")
 
 # load the tokenizer and model
-model = AutoModelForCausalLM.from_pretrained(huggingface_model) # Enable trust_remote_code for safetensor
+model = AutoModelForCausalLM.from_pretrained(huggingface_model, attn_implementation="eager") # Enable trust_remote_code for safetensor
 tokenizer = AutoTokenizer.from_pretrained(huggingface_model)
 
-# pipeline for text generation
-text_generation_pipeline = pipeline(
-    "text-generation",
-    model=model,
-    tokenizer=tokenizer,
+model.eval()
+
+prompt = "tell me a funny programming joke"
+inputs = tokenizer(prompt, return_tensors="pt") 
+
+# directly generate output
+output = model.generate(
+    **inputs,
+    max_new_tokens=150,
+    temperature=0.4,
+    do_sample=True,
+    output_attentions=True,
+    return_dict_in_generate=True
 )
 
-response = text_generation_pipeline(
-    "tell me a funny programming joke",
-    max_new_tokens=150,
-    temperature=0.7, # controls creativity
-    do_sample=True # enables temperature sampling
-    )
-
-
-print(response[0]['generated_text'])
+generated_text = tokenizer.decode(output.sequences[0], skip_special_tokens=True)
+print(generated_text)
